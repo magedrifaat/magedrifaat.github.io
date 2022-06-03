@@ -1,29 +1,11 @@
 ---
 layout: post
-title:  "Welcome to Jekyll!"
+title:  "GSoC 2022 Contributer with GNU Octave"
 date:   2022-06-03 19:18:43 +0200
-categories: jekyll update
+categories: gsoc update
 ---
-You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+I was accepted in tis year's Google Summer of Code program as a contibuter with [GNU Octave](https://www.gnu.org/software/octave/index). The project I'm working on is "Improving TIFF Image support" and I'm being mentored by [carandraug](https://carandraug.net/).
 
-Jekyll requires blog post files to be named according to the following format:
+The main objective of the project is to make use of the format specific library "libtiff" to handle Tiff images instead of the generic GraphicsMagick library that is currently used by Octave which only partially supports the tiff format specification and also has a compile-time fixed bit-depth (quantum) which isn't ideal in many use-cases.
 
-`YEAR-MONTH-DAY-title.MARKUP`
-
-Where `YEAR` is a four-digit number, `MONTH` and `DAY` are both two-digit numbers, and `MARKUP` is the file extension representing the format used in the file. After that, include the necessary front matter. Take a look at the source for this post to get an idea about how it works.
-
-Jekyll also offers powerful support for code snippets:
-
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
-
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
-
-[jekyll-docs]: https://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+You can find my project on the program site [here](https://summerofcode.withgoogle.com/programs/2022/projects/EJ2ywyMC). I will be posting regular updates about the project and my progress here on this site.
