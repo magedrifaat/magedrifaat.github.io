@@ -33,7 +33,7 @@ a.close()
 ```
 I faced an issue regarding how to keep the file pointer around once it is constructed, you can read about the issue in detail and the possible solutions in the forum thread [here](https://octave.discourse.group/t/tying-a-c-pointer-to-an-octave-object/2865).
 
-The first real feature of the class that I started working on this week was getTag. At first, I was able to implement a simple version of the function that always assumes the data of the tag is a 32-bit unsigned integer. This worked for many of the simple tags like ImageWidth, ImageHeight, and so on.
+The first real feature of the class that I started working on this week was getTag. At first, I was able to implement a simple version of the function that always assumes the data of the tag is a 32-bit unsigned integer. This worked for many of the simple tags like ImageWidth, ImageLength, and so on.
 ```matlab
 getTag(a, "ImageWidth")
 getTag(a, 256)
