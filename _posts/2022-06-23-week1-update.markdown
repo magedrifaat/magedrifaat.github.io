@@ -8,7 +8,7 @@ This is my first weekly update for GSoC 2022 Project with GNU Octave "Improve TI
 
 The main objective right now is to add a classdef called "Tiff" to Octave similar to the one with the same name in matlab and with similar or identical functionality.
 
-## This Week's Objectives
+## This Week's Progress
 
 ### Set up a hosting repostiroy forked from Octave
 
