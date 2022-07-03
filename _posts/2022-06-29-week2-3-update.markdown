@@ -1,0 +1,55 @@
+---
+layout: post
+title:  "GSoC 2022 Week 2 & 3 Update"
+date:   2022-07-03 16:55:00 +0200
+categories: gsoc update
+---
+This update covers the work done in the 2nd and 3rd weeks of the coding period as well as what is expected to be done by the end of the 4th week.
+
+## Last Weeks' Progress
+
+### Finish Implementing getTag
+
+As mentioned in the previous post, the interface provided by LibTIFF for obtaining the data inside tags is not uniform. The function TIFFGetField expects different number and types of arguments depending on the tag being requested. This means that we need to write logic to handle every tag we need to support. Luckily though there are many tags that can be handled in the same way so the logic can be greatly simplified by grouping tags and handling them as categories.
+
+I put together a spreadsheet to help me group together the tags depending on the types of arguments that need to be passed as well as the way to process them. I divided the tags into three categories: scalar, array and special tags.
+
+Scalar tags are tags which contain one element and TIFFGetField expects a pointer to variable wide enough to store the data of this element. This is very simple to handle and luckily most tags are in this category.
+
+Array tags are tags that contain multiple elements and TIFFGetField expects a pointer to a pointer so it can fill it with the address of the array it creates internally. The main difference between this category and the scalars is that there needs to be some logic to figure out the number of elements of the array before it can be processed and the logic to calculate the number of elements is dependant on the tag itself.
+
+Special case tags are tags that require some irregular number of arguments and can't be handled generically so it must be handled as its own case. The most important ones are ColorMap and TransferFunction which expect a number of arrays to store data for each channel separately.
+
+The spreadsheet file can be downloaded [here]({{ site.url }}/assets/files/tags.ods).
+
+There are some complex tags that require more work to be implemented (e.g. XMP) as well as some tags that aren't directly supported in LibTIFF, those will be implemented next week.
+
+### Modify configure.ac to correctly handle the new classdef
+
+Last week, the new Tiff class was added to the Octave build system by modifying module.mk to add Tiff.m and module-files in dldfcn to add an entry for \_\_tiff\_\_.cc.
+
+However, these modifications are only sufficient for the build to work on my machine and machines similar to mine. To be supported on all platforms supported by Octave and to be fully integrated into the build system of Octave, I needed to do some more modifications. Namely, I needed to turn the entry in module-files to use compiler variables instead:
+```shell
+    __tiff__.cc|$(TIFF_CPPFLAGS)|$(TIFF_LDFLAGS)|$(TIFF_LIBS)
+```
+
+And then, I needed to add an OCTAVE_CHECK_LIB entry in configure.ac for the libtiff library:
+```m4
+OCTAVE_CHECK_LIB(tiff, LibTIFF,
+  [LibTIFF library not found. The Tiff class will be disabled.],
+  [tiffio.h], [TIFFOpen], [], [], [], [libtiff-4])
+```
+
+And this is all, now tools like automake and autoconf can use this to create the correct configurations on the machines they support. For more information, you can read about [autotools](https://en.wikipedia.org/wiki/GNU_Autotools).
+
+### Change coding style to conform with Octave style guide
+
+Octave C++ and Octave style guides can be found [here](https://wiki.octave.org/C%2B%2B_style_guide) and [here](https://wiki.octave.org/Octave_style_guide) respectively. For the past weeks, I have been working mostly on proof of concepts so I didn't make a lot of effort to stick with any style guide.
+
+But now that my code is part of Octave's eco-system, it was time to start working on this point. I modified the C++ code formatting to follow all spacing and syntax styles mentioned in the style guide but there are still work to do on this point which should be covered in the next week.
+
+## Next Week's Objectives
+- Finish final details in getTag and test it.
+- Start Working on the read function.
+- Use HAVE_TIFF flag to optionally disable the class.
+- Follow octave commit style.
