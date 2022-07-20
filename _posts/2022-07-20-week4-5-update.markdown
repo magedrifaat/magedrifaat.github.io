@@ -1,0 +1,56 @@
+---
+layout: post
+title:  "GSoC 2022 Week 4 & 5 Update"
+date:   2022-07-20 21:00:00 +0200
+categories: gsoc update
+---
+This update covers the work done in the 4th and 5th weeks of the coding period as well as what is expected to be done by the end of the 6th week.
+
+## Last Weeks' Progress
+
+### Using HAVE_TIFF flag to optionally disable the class
+As stated in the previous post, LibTIFF is now integrated into the Octave build system by adding the correct entries in `module-files` and `configure.ac`. This has many benefits and one of them is that the configuration header file now has a flag `HAVE_TIFF` which signifies that this feature is available and enabled at compile-time.
+
+This means that the functionality of the Tiff class can now be optionally disabled if this flag is not defined so that it is not a required feature of the language if the user doesn't need it.
+
+The syntax for disabling a function using this flag is roughly like this:
+```c
+#if defined (HAVE_TIFF)
+  ...
+#else
+  err_disabled_feature ("getTag", "Tiff");
+#endif
+```
+
+And to disable this feature at compile time you can pass a flag `--without-tiff` to the configure script. For example, following the Octave building tutorial [here](https://wiki.octave.org/Building), the configure script command would be like this:
+```bash
+./../configure --prefix=$HOME/my_octave --without-tiff
+```
+
+### Implementing the read function
+The main function for reading the image data from a `Tiff` object is `read`. As per the documentation of `read`, it should return the entire image of the active file directory in the image file. It is returned as a numeric array of dimensions M by N by 3 for RGB images (where the third dimension depends on the number of channels of the image).
+
+The syntax for the `read` function is straightforward as follows:
+```matlab
+a = Tiff("example.tif");
+b = a.read();
+imshow(b);
+```
+
+However, implementing this function is not straightforward at all due to the number of cases and different possible formats that the TIFF format specification supports. Images can have different number of channels (e.g. 1 for grayscale, 3 for RGB, and 4 for CMYK and so on), and each channel can be 8, 16, 32, or 64 bit wide. Images can be divided into strips (horizontal slices) or tiles (rectangular regions) which need to be assembled together to form the full image. And for each of these types the pixel data can be arranged as contiguous channels (e.g. RGBRGBRGB) or the channels can be separated into planes (e.g. RRRGGGBBB). The format also supports 1-bit and 4-bit images for which each byte of data can represent multiple pixels that need to be extracted into its own cell in the output array.
+
+All these cases were handled and the function was imlpemented and locally tested for these cases. However, there remains a couple of special cases for images that are not yet supported which are floating-point images and YCbCr images. Support for these two cases will be added in the future.
+
+### Writing the first unit test for the classdef
+So far, testing the implemented features was done locally by running commands that I know cover the different cases. But it would be better to write a system of unit tests that can be simply run each time I need to test something new as this will cut down development time, and will make it possible for others to run these tests on their machine.
+
+But testing a function like `read` requires the right images to test the different cases correctly, and adding random images to the code base isn't ideal. The better solution would be to write tests that generate their own images and delete them after the test is done.
+
+This isn't currently possible because the set of functions implemented so far only read the image data and doesn't write any data to the file. So, priority will be given to functions that will make writing tests possible so that we can add tests iteratively instead of having to write all the tests at the end of development.
+
+For now however, I have added a dummy test that creates a Tiff file and then attempts to open it back. This can be found at the end of Tiff.m file under scripts/io.
+
+## Next Week's Objectives
+- Add support for floating point images in the read function
+- Implement functions necessary for writing tests
+- Add documentation for the classdef so print_usage can be used
