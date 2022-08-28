@@ -1,0 +1,47 @@
+---
+layout: post
+title:  "GSoC 2022 Week 10 & 11 Update"
+date:   2022-08-28 21:00:00 +0200
+categories: gsoc update
+---
+This update covers the work done in the 10th and 11th weeks of the coding period as well as what is expected to be done by the end of the 12th week.
+
+## Last Weeks' Progress
+
+### Implementing Sub-directory reading and writing
+Although not officialy documented, LibTIFF provides a way to write images as sub-directories, which is a feature allowed by the Tiff format specification by the use of the `SubIFD` tag.
+
+Support for reading and writing these sub-directories was implemented by correctly implementing the `SubIFD` tag as well as the `setSubDirectory` method.
+
+A guide on how to read sub-directories stored in a Tiff file can be found in matlab's official documentation [here](https://www.mathworks.com/help/matlab/import_export/importing-images.html#br_c8to-2), and writing such sub-directories is also described [here](https://www.mathworks.com/help/matlab/import_export/exporting-to-images.html#br_c_iz-5).
+
+### Handling all remaining bugs / missing features
+Now that all the methods of the Tiff interface were implemented, it was time to iron out all the small details that were left for later in the earlier stages of the project.
+
+These include:
+ - Support `r+` mode for openning Tiff files for both reading and writing.
+ - Making `octave_tiff_handle` class as a wrapper for the Tiff file handle returned from `TIFFOpen` to be passed back and forth between the Octave and the C++ sides instead of passing a pointer around.
+ - Support for reading and writing images with signed integer type data.
+ - Replacing any instance of `malloc` with a `unique_ptr`.
+ - Allowing both LibTIFF and matlab style names for getting and setting tags (e.g. both "Photometric" and "PhotometricInterpretation" are now accepted as a tag name).
+ - Support for complex tags (e.g. Photoshop, ICCProfile, and XMP).
+ - Refactoring repititive code into functions to avoid duplication.
+
+The Tiff class is now complete in terms of functions and features except for one feature which is support for `YCbCr` color space. This feature was left as a low priority feature since it is not widely used and is only an extension to the Tiff format specification.
+### Modifying imread/imwrite/imfinfo to use LibTIFF
+Three new function `__tiff_imread__`, `__tiff_imwrite__`, and `__tiff_imfinfo__` were implemented to act as handlers for imread, imwrite and imfinfo respectively and use LibTIFF instead of GraphicsMagick for Tiff images. These methods act as direct replacement for the private functions `__imread__`, `__imwrite__`, and `__imfinfo__` although they are implemented as C++ functions directly not private Octave functions.
+
+Some logic was added in the form of a `PKG_ADD` file in the scripts/image directory to conditionally switch to those handlers for tiff images if Octave is built with LibTIFF support:
+```m
+if __have_feature__ ("TIFF")
+    format = imformats("tif");
+    format.read = @__tiff_imread__;
+    format.write = @__tiff_imwrite__;
+    format.info = @__tiff_imfinfo__;
+    imformats("update", "tif", format);
+endif
+```
+
+## Next Week's Objectives
+- Finalize any necessary modifications to the im* handlers or the Tiff class.
+- Add documentation to all functions so print_usage can be used.
