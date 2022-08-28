@@ -45,3 +45,4 @@ endif
 ## Next Week's Objectives
 - Finalize any necessary modifications to the im* handlers or the Tiff class.
 - Add documentation to all functions so print_usage can be used.
+- Work on the "Work Product Submission" required by GSoC.
